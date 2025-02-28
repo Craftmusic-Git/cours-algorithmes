@@ -638,6 +638,198 @@ int main() {
 
 ## Les listes
 
+### Introduction aux listes chaînées
+
+Contrairement aux tableaux qui stockent des données dans des emplacements contigus en mémoire, les listes chaînées sont constituées de nœuds qui contiennent à la fois une donnée et un pointeur vers le nœud suivant. Cette structure offre plusieurs avantages significatifs.
+
+
+*Voici le code d'une Node :*
+```C
+struct Node {
+    int data;
+    struct Node* next;
+    struct Node* prev;
+};
+```
+
+*Et voici les fonction pour manipuler une node*
+```C
+
+// Création d'un nouveau nœud
+struct Node* creerNoeud(int data) {
+    struct Node* nouveauNoeud = (struct Node*)malloc(sizeof(struct Node));
+    nouveauNoeud->data = data;
+    nouveauNoeud->next = NULL;
+    return nouveauNoeud;
+}
+
+// Insertion au début de la liste
+struct Node* insererDebut(struct Node* tete, int data) {
+    struct Node* nouveauNoeud = creerNoeud(data);
+    nouveauNoeud->next = tete;
+    return nouveauNoeud;
+}
+
+// Affichage de la liste
+void afficherListe(struct Node* tete) {
+    struct Node* courant = tete;
+    while (courant != NULL) {
+        printf("%d -> ", courant->data);
+        courant = courant->next;
+    }
+    printf("NULL\n");
+}
+
+int main() {
+    struct Node* liste = NULL;
+    
+    // Ajout de quelques éléments
+    liste = insererDebut(liste, 3);
+    liste = insererDebut(liste, 2);
+    liste = insererDebut(liste, 1);
+    
+    afficherListe(liste);
+    
+    return 0;
+}
+Dans les prochaines sections, nous explorerons les différents types de listes plus en détail et nous verrons comment implémenter des opérations complexes comme la recherche, l'insertion à une position spécifique, ou encore la suppression d'éléments.RetryClaude can make mistakes. Please double-check responses.
+```
+
+**Avantages des listes par rapport aux tableaux**
+1. Taille dynamique
+
+- **Listes** : Peuvent s'agrandir ou diminuer pendant l'exécution sans réallocation complète
+- **Tableaux** : Nécessitent une réallocation et copie complète pour changer de taille
+
+2. Efficacité des insertions et suppressions
+
+- **Listes** : Insertion et suppression en O(1) si on connaît la position
+- **Tableaux** : Nécessitent de décaler les éléments en O(n)
+
+3. Utilisation de la mémoire
+
+- **Listes** : Allocation précise à la demande, mais overhead dû aux pointeurs
+- **Tableaux** : Peuvent réserver de l'espace inutilisé ou être insuffisants
+
+4. Structure et organisation
+
+- **Listes** : Structure non-contiguë avec des nœuds reliés par des pointeurs
+- **Tableaux** : Structure contiguë avec accès direct par indice
+
+#### Exercice pratique
+
+Implémenter une fonction qui inverse une liste chaînée :
+
+### Introduction aux vecteurs
+
+Le vecteur est une implémentation de tableau dynamique qui combine les avantages des tableaux (accès rapide par indice) et des listes (taille dynamique). C'est une structure de données fondamentale dans de nombreux langages de programmation modernes (comme `std::vector` en C++, `ArrayList` en Java, ou `list` en Python).
+
+Un vecteur est essentiellement un tableau qui peut changer de taille automatiquement. Voici comment on pourrait l'implémenter en C :
+
+```C
+typedef struct {
+    int* elements;     // Tableau d'éléments
+    int taille;        // Nombre d'éléments utilisés
+    int capacite;      // Capacité totale allouée
+} Vector;
+```
+
+**Initialisation** 
+
+```C
+Vector* initialiserVector() {
+    Vector* vec = (Vector*)malloc(sizeof(Vector));
+    vec->capacite = 10;  // Capacité initiale
+    vec->taille = 0;     // Aucun élément au début
+    vec->elements = (int*)malloc(vec->capacite * sizeof(int));
+    return vec;
+}
+```
+**Redimensionnement**
+
+```C
+void redimensionner(Vector* vec, int nouvelleCapacite) {
+    int* nouveauxElements = (int*)malloc(nouvelleCapacite * sizeof(int));
+    
+    // Copier les éléments existants
+    for (int i = 0; i < vec->taille; i++) {
+        nouveauxElements[i] = vec->elements[i];
+    }
+    
+    // Libérer l'ancien tableau et mettre à jour
+    free(vec->elements);
+    vec->elements = nouveauxElements;
+    vec->capacite = nouvelleCapacite;
+}
+```
+
+**Ajout d'éléments**
+```C
+void ajouter(Vector* vec, int element) {
+    // Vérifier si redimensionnement nécessaire
+    if (vec->taille == vec->capacite) {
+        redimensionner(vec, vec->capacite * 2);  // Doubler la capacité
+    }
+    
+    // Ajouter l'élément et incrémenter la taille
+    vec->elements[vec->taille] = element;
+    vec->taille++;
+}
+```
+
+**Insertion à une position**
+
+```C
+void inserer(Vector* vec, int position, int element) {
+    // Vérifier si la position est valide
+    if (position < 0 || position > vec->taille) {
+        printf("Position d'insertion invalide\n");
+        return;
+    }
+    
+    // Redimensionner si nécessaire
+    if (vec->taille == vec->capacite) {
+        redimensionner(vec, vec->capacite * 2);
+    }
+    
+    // Décaler les éléments pour faire de la place
+    for (int i = vec->taille; i > position; i--) {
+        vec->elements[i] = vec->elements[i-1];
+    }
+    
+    // Insérer l'élément et incrémenter la taille
+    vec->elements[position] = element;
+    vec->taille++;
+}
+```
+
+**Avantages des vecteurs**
+1. **Accès aléatoire efficace** : O(1) comme les tableaux classiques
+2. **Taille dynamique** : S'adapte automatiquement aux besoins
+3. **Amortissement des coûts** : Les opérations d'ajout sont en O(1)
+4. **Utilisation optimale de la mémoire** : Bon compromis entre sur-allocation et réallocation fréquentes.
+
+**Inconvénients des vecteurs**
+1. **Réallocation coûteuse** : Quand la capacité est atteinte, la réallocation en O(n)
+2. **Insertions/suppressions en milieu inefficaces** : Nécessitent de décaler les éléments en O(n)
+3. **Gestion manuelle de la mémoire** : En C, contrairement aux langages de plus haut niveau
+
+### Comparaison avec mes tableaux et les listes
+
+| Critère | Vecteur | Tableau | Liste |
+|---------|---------|---------|-------|
+| Accès par indice | O(1) | O(1) | O(n) |
+| Insertion/suppression au début | O(n) | O(n) | O(1) |
+| Insertion/suppression à la fin | O(1)* | O(1) | O(1)** |
+| Insertion/suppression au milieu | O(n) | O(n) | O(n) |
+| Utilisation mémoire | Efficace | Statique | Overhead |
+| Taille dynamique | Oui | Non | Oui |
+
+\* Amorti, peut être O(n) en cas de réallocation  
+\** Avec pointeur vers la fin
+
+Cette structure de données offre un excellent compromis pour de nombreuses applications où la flexibilité des listes et les performances des tableaux sont nécessaires.
+
 ## Les graphes
 
 ## Les arbres
@@ -660,3 +852,5 @@ int main() {
 ## C'est quoi une metadata
 
 ## Le cas du pointeur générique
+
+
